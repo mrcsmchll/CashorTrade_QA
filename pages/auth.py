@@ -7,10 +7,13 @@ class Auth:
     INPUT_CODE = "input-confirmation-code"
     BTN_SUBMIT = "btn-sign-up-phone-number-next"
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, driver):
+        self.driver = driver
 
     def verify_phone(self):
-        #TODO
-        # auth_code_input = self.driver.find_element(By.ID, )
-        # auth_code_input.send_keys(Utils.AUTH_CODE)
+        auth_code_input = self.driver.find_element(By.ID,self.INPUT_CODE)
+        auth_code_input.send_keys(self.AUTH_CODE)
+        
+        submit_button = self.driver.find_element(By.ID, self.BTN_SUBMIT)
+        submit_button.click()
+        

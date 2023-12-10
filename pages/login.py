@@ -10,7 +10,6 @@ class Login:
         self.driver = driver
 
     def login_with_phone(self):
-        
         phone_input = self.driver.find_element(By.ID, self.INPUT_PHONE)
         phone_input.send_keys(Utils.random_phone_number())
         
