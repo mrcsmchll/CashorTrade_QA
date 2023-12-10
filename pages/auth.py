@@ -11,6 +11,8 @@ class Auth:
         self.driver = driver
 
     def verify_phone(self):
+        self.driver.implicitly_wait(5)
+        
         auth_code_input = self.driver.find_element(By.ID,self.INPUT_CODE)
         auth_code_input.send_keys(self.AUTH_CODE)
         
