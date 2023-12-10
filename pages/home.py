@@ -5,8 +5,10 @@ class Home:
     #ids
     BTN_LOGIN_DESKTOP = "btn-secondary-log-in"
     BTN_LOGIN_MOBILE = "mobile-footer-login"
+    #tag loc
     OVERLAY_LOC = (By.ID, "overlay")
-    
+    FORM_LOC = (By.CLASS_NAME, "relative h-full bg-white rounded-t-3xl")
+
     def __init__(self, driver):
         self.driver = driver
 
