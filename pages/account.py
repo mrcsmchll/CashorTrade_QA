@@ -1,11 +1,11 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from utils.utils import Utils
 
 class Account:
     URL = "https://front-stage.cashortrade.org/auth/account"
-    USR_NAME = "usr69"
-    USR_MAIL = USR_NAME + "@asd.com"
+   
     #ids
     INPUT_USR = "input-text-account-register-username"
     INPUT_MAIL = "input-text-account-register-email"
@@ -16,14 +16,14 @@ class Account:
     def __init__(self, driver):
         self.driver = driver
     
-    def create_user(self):
+    def create_user(self, name, mail):
         self.driver.implicitly_wait(5)
 
         user_input = self.driver.find_element(By.ID, self.INPUT_USR)
-        user_input.send_keys(self.USR_NAME)
+        user_input.send_keys(name)
 
         mail_input = self.driver.find_element(By.ID, self.INPUT_MAIL)
-        mail_input.send_keys(self.USR_MAIL)
+        mail_input.send_keys(mail)
 
         #Accepting Terms of Service
         check_box = self.driver.find_element(By.CSS_SELECTOR, self.CHECKBOX)
