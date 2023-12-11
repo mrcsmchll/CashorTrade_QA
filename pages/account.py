@@ -11,7 +11,7 @@ class Account:
    
     #ids
     CHECKBOX = ".flex:nth-child(3) > .cursor-pointer"
-    INPUT_USR = "input-text-account-register-username"
+    INPUT_USR = (By.ID, "input-text-account-register-username")
     INPUT_MAIL = "input-text-account-register-email"
     BTN_SUBMIT = "btn-username-phone-sign-up"
     BTN_SKIP_PIC = "btn-secondary-profile-pic-skip-for-now"
@@ -25,6 +25,7 @@ class Account:
     DROPDOWN_OG_PURCHASE = (By.CSS_SELECTOR, "#input-dropdown-ticket-wallet-primary-vendor > .absolute-full")
     DROPDOWN_LOC = (By.ID, "input-dropdown-ticket-wallet-ga-section")
     INPUT_PRICE = (By.ID, "input-number-create-listing-price-per")
+    RADIO_VALUE = (By.CSS_SELECTOR, ".space-y-3 > .flex:nth-child(1)")
     BTN_ADD_PAY = (By.CLASS_NAME, "block w-full sm:w-auto rounded-lg border-2 border-primary border-solid px-6 py-3 relative flex justify-center items-center svelte-1cvyoxz")
     INPUT_CARD_NUM = (By.ID, "Field-numberInput")
     BTN_NEXT_ADD_PAY = (By.ID, "btn-create-listing-creditCardInformation")
@@ -38,9 +39,10 @@ class Account:
     
     def create_user(self, name, mail):
 
-        self.driver.implicitly_wait(5)
-
-        user_input = self.driver.find_element(By.ID, self.INPUT_USR)
+        WebDriverWait(self.driver, 6).until(
+            EC.visibility_of_element_located(self.INPUT_USR)
+        )
+        user_input = self.driver.find_element(*self.INPUT_USR)
         user_input.send_keys(name)
 
         mail_input = self.driver.find_element(By.ID, self.INPUT_MAIL)
@@ -54,7 +56,7 @@ class Account:
         submit_button.click()
 
         #Skipping profile pic selection
-        WebDriverWait(self.driver, 10).until(
+        WebDriverWait(self.driver, 45).until(
             EC.url_contains("profile-picture")
         )
 
@@ -169,8 +171,12 @@ class Account:
 
             price_input = self.driver.find_element(*self.INPUT_PRICE)
             price_input.send_keys("12")
+            WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable(self.RADIO_VALUE)
+            )
 
-            face_value_radio = self.driver.find_element(By.CSS_SELECTOR, ".space-y-3 > .flex:nth-child(1)")
+
+            face_value_radio = self.driver.find_element(*self.RADIO_VALUE)
             self.driver.execute_script("arguments[0].scrollIntoView();", face_value_radio)
             face_value_radio.click()
 

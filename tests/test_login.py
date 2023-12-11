@@ -39,14 +39,14 @@ class TestLogin:
 
         login_page = Login(driver)
         login_page.login_with_phone_num(self.user.phone)        
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 20).until(
             EC.url_contains("verify")
         )
 
         auth_page = Auth(driver)
         auth_page.verify_phone()
 
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 40).until(
             EC.url_contains("account")
         )
         assert "account" in driver.current_url.lower()

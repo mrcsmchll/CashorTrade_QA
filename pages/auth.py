@@ -1,21 +1,27 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class Auth:
     AUTH_CODE = "000000" 
     #ids
-    INPUT_CODE = "input-confirmation-code"
-    BTN_SUBMIT = "btn-sign-up-phone-number-next"
+    INPUT_CODE = (By.ID, "input-confirmation-code")
+    BTN_NEXT = (By.ID, "btn-sign-up-phone-number-next")
 
     def __init__(self, driver):
         self.driver = driver
 
     def verify_phone(self):
-        self.driver.implicitly_wait(5)
-        
-        auth_code_input = self.driver.find_element(By.ID,self.INPUT_CODE)
+        WebDriverWait(self.driver, 6).until(
+            EC.visibility_of_element_located(self.INPUT_CODE)
+        )
+        auth_code_input = self.driver.find_element(*self.INPUT_CODE)
         auth_code_input.send_keys(self.AUTH_CODE)
         
-        submit_button = self.driver.find_element(By.ID, self.BTN_SUBMIT)
-        submit_button.click()
+        next_button = self.driver.find_element(*self.BTN_NEXT)
+        WebDriverWait(self.driver, 6).until(
+            EC.element_to_be_clickable(self.BTN_NEXT)
+        )
+        next_button.click()
         
