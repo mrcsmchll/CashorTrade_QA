@@ -2,5 +2,5 @@
     ```
     pip install -r requirements.txt
     ```
-
+## Currently tested in a Chromium enviorment
 

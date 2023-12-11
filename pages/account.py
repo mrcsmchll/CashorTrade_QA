@@ -63,7 +63,7 @@ class Account:
         performers = self.driver.find_elements(By.CLASS_NAME, "space-y-3.transform.translate-y-0.hoist-undefined.svelte-1xzbzxf")
         perfs_with_event = []
 
-       for i, performer in enumerate(performer s):
+        for i, performer in enumerate(performers):
             try:
                 self.driver.find_element(By.ID, "performer-result-" + str(i)).click()
                 self.driver.implicitly_wait(2)
@@ -72,6 +72,8 @@ class Account:
                 try:
                     nested_element = self.driver.find_element(By.ID, "search-event-result-0")
                     perfs_with_event.append(nested_element)
+                    #go back
+                    self.driver.find_element(By.CLASS_NAME, "text-primary font-medium").click()
                 except NoSuchElementException:
                     pass  # No nested element found, continue with the next performer
             except StaleElementReferenceException:
