@@ -1,3 +1,3 @@
-usr_name: gbsm
-usr_mail: gbsm@asd.com
-usr_phone: (500) 415-3392
+usr_name: mjwx
+usr_mail: mjwx@test.com
+usr_phone: (238) 799-7865

@@ -13,9 +13,9 @@ class Utils:
         letters = string.ascii_lowercase
         return ''.join(random.choice(letters) for i in range(4))
 
-    def user_save(phone, user_name, user_mail):
+    def user_save(user):
         with open("usr.txt","w") as file:
-            file.write("usr_name: " + user_name + "\n")
-            file.write("usr_mail: " + user_mail + "\n")
-            file.write("usr_phone: " + phone + "\n")
+            file.write("usr_name: " + user.name + "\n")
+            file.write("usr_mail: " + user.mail + "\n")
+            file.write("usr_phone: " + user.phone + "\n")
         
