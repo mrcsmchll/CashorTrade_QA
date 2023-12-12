@@ -32,6 +32,7 @@ class Account:
     BTN_NEXT_CREATE_LIST = (By.ID,"btn-create-listing-ticketListing")
     BTN_POST = (By.ID, "btn-create-listing-listingReview")
     WALLET_WRAPPER = (By.ID, "ticket-wallet-wrapper")
+    PERFORMERS_WRAPPER = (By.CLASS_NAME, "space-y-3.transform.translate-y-0.hoist-undefined.svelte-1xzbzxf")
 
 
     def __init__(self, driver):
@@ -70,26 +71,37 @@ class Account:
         self.driver.find_element(*self.BTN_SKIP_WLK).click()
 
     def sell_ticket(self):
-        self.driver.implicitly_wait(5)
         self.driver.find_element(By.ID, self.BTN_SELL).click()
         WebDriverWait(self.driver, 10).until(
             EC.visibility_of_element_located(self.WALLET_WRAPPER)
         )    
 
-        performers = self.driver.find_elements(By.CLASS_NAME, "space-y-3.transform.translate-y-0.hoist-undefined.svelte-1xzbzxf")
+        performers = self.driver.find_elements(*self.PERFORMERS_WRAPPER)
         perfs_with_event = []
 
         for i, performer in enumerate(performers):
             try:
-                self.driver.find_element(By.ID, "performer-result-" + str(i)).click()
-                self.driver.implicitly_wait(2)
+                # first_performer = (By.ID, "performer-result-0")
+                
+                first_performer = (By.ID, "performer-result-" + str(i))
+                WebDriverWait(self.driver, 30).until(
+                    EC.visibility_of_element_located(first_performer)
+                )
+                # self.driver.find_element(By.ID, "performer-result-" + str(i)).click()
+                
+                self.driver.find_element(*first_performer).click()
 
                 # Check if there is a nested element with ID "search-event-result-0"
                 try:
-                    nested_element = self.driver.find_element(By.ID, "search-event-result-0")
+                    # first_performer = (By.ID, "performer-result-0")
+                    WebDriverWait(self.driver, 20).until(
+                        EC.visibility_of_element_located(self.BTN_EVENT)
+                    )
+
+                    nested_element = self.driver.find_element(*self.BTN_EVENT)
                     perfs_with_event.append(nested_element)
                     #go back
-                    self.driver.find_element(By.CLASS_NAME, "text-primary font-medium").click()
+                    self.driver.find_element(By.CLASS_NAME, "flex items-center").click()
                 except NoSuchElementException:
                     pass  # No nested element found, continue with the next performer
             except StaleElementReferenceException:
@@ -129,10 +141,11 @@ class Account:
 
             quantity_dropdown = self.driver.find_element(*self.DROPDOWN_QUANT)
             quantity_dropdown.click()
-            self.driver.implicitly_wait(2)
+            WebDriverWait(self.driver, 6)
+
             quantity_amount_1 = self.driver.find_element(By.ID, "input-dropdown-option-0")
             quantity_amount_1.click()
-            self.driver.implicitly_wait(2)
+            WebDriverWait(self.driver, 6)
 
             ready_btn = self.driver.find_element(By.ID, "btn-selector-ready")
             ready_btn.click()
@@ -146,22 +159,21 @@ class Account:
 
             og_purchase_1 = self.driver.find_element(By.ID, "input-dropdown-option-0")
             og_purchase_1.click()
-            self.driver.implicitly_wait(2)
+            WebDriverWait(self.driver, 6)
 
             ticket_info = self.driver.find_element(By.ID, "btn-selector-general-admission")
             ticket_info.click()
-            self.driver.implicitly_wait(2)
             WebDriverWait(self.driver, 10).until(
                 EC.visibility_of_element_located(self.DROPDOWN_LOC)
             )
 
             ticket_loc_dropdown = self.driver.find_element(*self.DROPDOWN_LOC)
             ticket_loc_dropdown.click()
-            self.driver.implicitly_wait(2)
+            WebDriverWait(self.driver, 6)
 
             ticket_loc_selection =  self.driver.find_element(By.ID, "input-dropdown-option-7")
             ticket_loc_selection.click()
-            self.driver.implicitly_wait(2)
+            WebDriverWait(self.driver, 6)
 
             next_btn = self.driver.find_element(By.ID, "btn-create-listing-mediumSpecificInfo")
             next_btn.click()
@@ -182,8 +194,8 @@ class Account:
 
             next_btn = self.driver.find_element(By.ID, "btn-create-listing-ticketPricing")
             next_btn.click()
-            WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located(self.BTN_ADD_PAY)
+            WebDriverWait(self.driver, 20).until(
+                EC.element_to_be_clickable(self.BTN_ADD_PAY)
             )            
                      
             #TODO: Change locator for payment element
