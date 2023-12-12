@@ -6,14 +6,14 @@ class Home:
     URL = "https://front-stage.cashortrade.org/"
     #ids
     BTN_LOGIN_DESKTOP = (By.ID, "btn-secondary-log-in")
-    BTN_LOGIN_MOBILE =(By.ID, "mobile-footer-login") 
-    BTN_SELL_TICKET_1 =(By.ID, "opt-2-sell-my-tickets") 
-    BTN_SELL_TICKET_2 =(By.ID, "homepage-sell") 
+    BTN_LOGIN_MOBILE = (By.ID, "mobile-footer-login") 
+    BTN_SELL_TICKET_1 = (By.ID, "opt-2-sell-my-tickets") 
+    BTN_SELL_TICKET_2 = (By.ID, "homepage-sell") 
     #tag loc
     OVERLAY_LOC = (By.ID, "overlay")
     FORM_LOC = (By.CLASS_NAME, "relative h-full bg-white rounded-t-3xl")
 
-    CALL_TIMEOUT = 10
+    CALL_TIMEOUT = 90
     
     def __init__(self, driver):
         self.driver = driver

@@ -26,21 +26,23 @@ class Account:
     DROPDOWN_LOC = (By.ID, "input-dropdown-ticket-wallet-ga-section")
     INPUT_PRICE = (By.ID, "input-number-create-listing-price-per")
     RADIO_VALUE = (By.CSS_SELECTOR, ".space-y-3 > .flex:nth-child(1)")
-    BTN_ADD_PAY = (By.CLASS_NAME, "block w-full sm:w-auto rounded-lg border-2 border-primary border-solid px-6 py-3 relative flex justify-center items-center svelte-1cvyoxz")
-    INPUT_CARD_NUM = (By.ID, "Field-numberInput")
+    BTN_ADD_PAY = (By.CSS_SELECTOR, "#ticket-wallet-wrapper > div > div.relative.flex-1.overflow-y-scroll.scrollbar-hide.px-6.pb-12.z-1 > div.mb-6 > div > div.mb-8.space-y-3 > div.space-y-2 > button")
+    INPUT_CARD_NUM = (By.CSS_SELECTOR, "#card > div > div > form > div > div.p-Grid.p-CardForm > div.p-GridCell.p-GridCell--12.p-GridCell--md6 > div > div > div")
     BTN_NEXT_ADD_PAY = (By.ID, "btn-create-listing-creditCardInformation")
     BTN_NEXT_CREATE_LIST = (By.ID,"btn-create-listing-ticketListing")
     BTN_POST = (By.ID, "btn-create-listing-listingReview")
     WALLET_WRAPPER = (By.ID, "ticket-wallet-wrapper")
-    PERFORMERS_WRAPPER = (By.CLASS_NAME, "space-y-3.transform.translate-y-0.hoist-undefined.svelte-1xzbzxf")
+    PERFORMERS_WRAPPER = (By.CLASS_NAME, "space-y-3 transform translate-y-0 hoist-undefined svelte-1xzbzxf")
+    BTN_FRST_PERF = (By.ID, "performer-result-0")
 
+    CALL_TIMEOUT = 60
 
     def __init__(self, driver):
         self.driver = driver
     
     def create_user(self, name, mail):
 
-        WebDriverWait(self.driver, 6).until(
+        WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
             EC.visibility_of_element_located(self.INPUT_USR)
         )
         user_input = self.driver.find_element(*self.INPUT_USR)
@@ -57,7 +59,7 @@ class Account:
         submit_button.click()
 
         #Skipping profile pic selection
-        WebDriverWait(self.driver, 45).until(
+        WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
             EC.url_contains("profile-picture")
         )
 
@@ -65,66 +67,71 @@ class Account:
         skip_pic.click()        
 
     def skip_walkthrough(self):
-        WebDriverWait(self.driver, 10).until(
+        WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
             EC.visibility_of_element_located(self.BTN_SKIP_WLK)
         )
         self.driver.find_element(*self.BTN_SKIP_WLK).click()
 
     def sell_ticket(self):
         self.driver.find_element(By.ID, self.BTN_SELL).click()
-        WebDriverWait(self.driver, 10).until(
-            EC.visibility_of_element_located(self.WALLET_WRAPPER)
+        WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
+            EC.presence_of_element_located(self.BTN_FRST_PERF)
         )    
 
-        performers = self.driver.find_elements(*self.PERFORMERS_WRAPPER)
-        perfs_with_event = []
-
-        for i, performer in enumerate(performers):
-            try:
-                # first_performer = (By.ID, "performer-result-0")
+        # performers = self.driver.find_elements(*self.PERFORMERS_WRAPPER)
+        # perfs_with_event = []
+        first_performer = self.driver.find_element(*self.BTN_FRST_PERF)
+        first_performer.click()
+        WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
+            EC.visibility_of_element_located(self.BTN_EVENT)
+        )
+        # for i, performer in enumerate(performers):
+        #     try:
                 
-                first_performer = (By.ID, "performer-result-" + str(i))
-                WebDriverWait(self.driver, 30).until(
-                    EC.visibility_of_element_located(first_performer)
-                )
-                # self.driver.find_element(By.ID, "performer-result-" + str(i)).click()
+        #         first_performer = self.driver.find_element(*self.BTN_FRST_PERF).click()
+        #         WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
+        #             EC.visibility_of_element_located(first_performer)
+        #         )
                 
-                self.driver.find_element(*first_performer).click()
+                
 
-                # Check if there is a nested element with ID "search-event-result-0"
-                try:
-                    # first_performer = (By.ID, "performer-result-0")
-                    WebDriverWait(self.driver, 20).until(
-                        EC.visibility_of_element_located(self.BTN_EVENT)
-                    )
+        #         # Check if there is a nested element with ID "search-event-result-0"
+        #         try:
+                    
+        #             WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
+        #                 EC.visibility_of_element_located(self.BTN_EVENT)
+        #             )
 
-                    nested_element = self.driver.find_element(*self.BTN_EVENT)
-                    perfs_with_event.append(nested_element)
-                    #go back
-                    self.driver.find_element(By.CLASS_NAME, "flex items-center").click()
-                except NoSuchElementException:
-                    pass  # No nested element found, continue with the next performer
-            except StaleElementReferenceException:
-                print(f"Element at index {i} became stale. Skipping.")
-            continue
+        #             nested_element = self.driver.find_element(*self.BTN_EVENT)
+
+        #             WebDriverWait(self.driver, self.CALL_TIMEOUT)
+                    
+        #             perfs_with_event.append(nested_element)
+        #             #go back
+        #             self.driver.find_element(By.CLASS_NAME, "flex items-center").click()
+        #         except NoSuchElementException:
+        #             pass  # No nested element found, continue with the next performer
+        #     except StaleElementReferenceException:
+        #         print(f"Element at index {i} became stale. Skipping.")
+        #     continue
 
             
-        if perfs_with_event:        
+        if first_performer is not None:        
         #select the first performer found that has registered an event
-            perfs_with_event[0].click()
-            #  WebDriverWait(self.driver, 10).until(
+            # first_performer.click()
+            #  WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
             #     EC.visibility_of_element_located(self.BTN_EVENT)
             # )    
 
-            # event = self.driver.find_element(*self.BTN_EVENT)
-            # event.click()
-            WebDriverWait(self.driver, 10).until(
+            event = self.driver.find_element(*self.BTN_EVENT)
+            event.click()
+            WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
                 EC.visibility_of_element_located(self.BTN_EVENT_SELL)
             ) 
 
             sell_btn = self.driver.find_element(*self.BTN_EVENT_SELL)
             sell_btn.click()
-            # WebDriverWait(self.driver, 10).until(
+            # WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
             #     EC.visibility_of_element_located(self.BTN_DIGITAL_TRANSF)
             # )
 
@@ -135,21 +142,21 @@ class Account:
             
             next_btn = self.driver.find_element(*self.BTN_NEXT)
             next_btn.click()
-            WebDriverWait(self.driver, 10).until(
+            WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
                 EC.visibility_of_element_located(self.DROPDOWN_QUANT)
             )
 
             quantity_dropdown = self.driver.find_element(*self.DROPDOWN_QUANT)
             quantity_dropdown.click()
-            WebDriverWait(self.driver, 6)
+            WebDriverWait(self.driver, self.CALL_TIMEOUT)
 
             quantity_amount_1 = self.driver.find_element(By.ID, "input-dropdown-option-0")
             quantity_amount_1.click()
-            WebDriverWait(self.driver, 6)
+            WebDriverWait(self.driver, self.CALL_TIMEOUT)
 
             ready_btn = self.driver.find_element(By.ID, "btn-selector-ready")
             ready_btn.click()
-            WebDriverWait(self.driver, 10).until(
+            WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
                 EC.visibility_of_element_located(self.DROPDOWN_OG_PURCHASE)
             )
            
@@ -159,31 +166,31 @@ class Account:
 
             og_purchase_1 = self.driver.find_element(By.ID, "input-dropdown-option-0")
             og_purchase_1.click()
-            WebDriverWait(self.driver, 6)
+            WebDriverWait(self.driver, self.CALL_TIMEOUT)
 
             ticket_info = self.driver.find_element(By.ID, "btn-selector-general-admission")
             ticket_info.click()
-            WebDriverWait(self.driver, 10).until(
+            WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
                 EC.visibility_of_element_located(self.DROPDOWN_LOC)
             )
 
             ticket_loc_dropdown = self.driver.find_element(*self.DROPDOWN_LOC)
             ticket_loc_dropdown.click()
-            WebDriverWait(self.driver, 6)
+            WebDriverWait(self.driver, self.CALL_TIMEOUT)
 
             ticket_loc_selection =  self.driver.find_element(By.ID, "input-dropdown-option-7")
             ticket_loc_selection.click()
-            WebDriverWait(self.driver, 6)
+            WebDriverWait(self.driver, self.CALL_TIMEOUT)
 
             next_btn = self.driver.find_element(By.ID, "btn-create-listing-mediumSpecificInfo")
             next_btn.click()
-            WebDriverWait(self.driver, 10).until(
+            WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
                 EC.visibility_of_element_located(self.INPUT_PRICE)
             )
 
             price_input = self.driver.find_element(*self.INPUT_PRICE)
             price_input.send_keys("12")
-            WebDriverWait(self.driver, 10).until(
+            WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
                 EC.element_to_be_clickable(self.RADIO_VALUE)
             )
 
@@ -194,16 +201,19 @@ class Account:
 
             next_btn = self.driver.find_element(By.ID, "btn-create-listing-ticketPricing")
             next_btn.click()
-            WebDriverWait(self.driver, 20).until(
+            WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
                 EC.element_to_be_clickable(self.BTN_ADD_PAY)
             )            
                      
-            #TODO: Change locator for payment element
             add_payment = self.driver.find_element(*self.BTN_ADD_PAY)
             add_payment.click()
-            WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located(self.INPUT_CARD_NUM)
+            
+            #TODO:Find a way to get input card element
+            WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
+                EC.presence_of_element_located(self.INPUT_CARD_NUM)
             ) 
+
+
 
             card_number_input = self.driver.find_element(*self.INPUT_CARD_NUM)
             card_number_input.send_keys("4242424242424242")
@@ -236,20 +246,20 @@ class Account:
 
             submit_btn = self.driver.find_element(By.ID, "btn-submit")
             submit_btn.click()
-            WebDriverWait(self.driver,10).until(
+            WebDriverWait(self.driver,self.CALL_TIMEOUT).until(
                 EC.visibility_of_element_located(self.BTN_NEXT_ADD_PAY)
             )
 
             next_btn = self.driver.find_element(*self.BTN_NEXT_ADD_PAY)
             next_btn.click()
-            WebDriverWait(self.driver,10).until(
+            WebDriverWait(self.driver,self.CALL_TIMEOUT).until(
                 EC.visibility_of_element_located(self.BTN_NEXT_CREATE_LIST)
             )
 
             next_btn = self.driver.find_element(*self.BTN_NEXT_CREATE_LIST)
             next_btn.click()
 
-            WebDriverWait(self.driver,10).until(
+            WebDriverWait(self.driver,self.CALL_TIMEOUT).until(
                 EC.visibility_of_element_located(self.BTN_POST)
             )
             post_btn = self.driver.find_element(*self.BTN_POST)

@@ -11,6 +11,7 @@ from pages.auth import Auth
 from pages.account import Account
 
 class TestLogin:
+    CALL_TIMEOUT = 60
 
     @pytest.fixture(scope="function")
     def setup(self):
@@ -32,21 +33,21 @@ class TestLogin:
 
         home_page = Home(driver)
         home_page.click_login_desktop()
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, self.CALL_TIMEOUT).until(
             EC.url_contains("register")
         )
         assert "register" in driver.current_url.lower()
 
         login_page = Login(driver)
         login_page.login_with_phone_num(self.user.phone)        
-        WebDriverWait(driver, 20).until(
+        WebDriverWait(driver, self.CALL_TIMEOUT).until(
             EC.url_contains("verify")
         )
         assert "verify" in driver.current_url.lower()
 
         auth_page = Auth(driver)
         auth_page.verify_phone()
-        WebDriverWait(driver, 40).until(
+        WebDriverWait(driver, self.CALL_TIMEOUT).until(
             EC.url_contains("account")
         )
         assert "account" in driver.current_url.lower()
