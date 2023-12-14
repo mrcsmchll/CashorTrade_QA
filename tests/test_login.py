@@ -27,6 +27,7 @@ class TestLogin:
         driver.get(Home.URL)
         yield driver
         driver.quit()
+        
 
     def test_login(self, setup):
         driver = setup
@@ -59,7 +60,7 @@ class TestLogin:
 
         acc_page.skip_walkthrough()
 
-        acc_page.sell_ticket()
+        acc_page.sell_ticket(self.user)
     
 
 

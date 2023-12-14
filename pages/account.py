@@ -27,6 +27,8 @@ class Account:
     INPUT_PRICE = (By.ID, "input-number-create-listing-price-per")
     RADIO_VALUE = (By.CSS_SELECTOR, ".space-y-3 > .flex:nth-child(1)")
     BTN_ADD_PAY = (By.CSS_SELECTOR, "#ticket-wallet-wrapper > div > div.relative.flex-1.overflow-y-scroll.scrollbar-hide.px-6.pb-12.z-1 > div.mb-6 > div > div.mb-8.space-y-3 > div.space-y-2 > button")
+    IFRAME_CARD = (By.XPATH, "/html/body/div[1]/div[1]/div[4]/div/div/div[3]/div[1]/div/div[1]/div[2]/form/div[1]/div[1]/div/iframe")
+    IFRAME_BILLING_ADDRESS = (By.XPATH, "/html/body/div[1]/div[1]/div[4]/div/div/div[3]/div[1]/div/div[1]/div[2]/form/div[1]/div[2]/div/iframe[1]")
     INPUT_CARD_NUM = (By.CSS_SELECTOR, "#card > div > div > form > div > div.p-Grid.p-CardForm > div.p-GridCell.p-GridCell--12.p-GridCell--md6 > div > div > div")
     BTN_NEXT_ADD_PAY = (By.ID, "btn-create-listing-creditCardInformation")
     BTN_NEXT_CREATE_LIST = (By.ID,"btn-create-listing-ticketListing")
@@ -72,7 +74,7 @@ class Account:
         )
         self.driver.find_element(*self.BTN_SKIP_WLK).click()
 
-    def sell_ticket(self):
+    def sell_ticket(self, user):
         self.driver.find_element(By.ID, self.BTN_SELL).click()
         WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
             EC.presence_of_element_located(self.BTN_FRST_PERF)
@@ -201,35 +203,54 @@ class Account:
 
             next_btn = self.driver.find_element(By.ID, "btn-create-listing-ticketPricing")
             next_btn.click()
+
             WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
                 EC.element_to_be_clickable(self.BTN_ADD_PAY)
             )            
                      
             add_payment = self.driver.find_element(*self.BTN_ADD_PAY)
             add_payment.click()
-            
-            #TODO:Find a way to get input card element
+
             WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
-                EC.presence_of_element_located(self.INPUT_CARD_NUM)
-            ) 
+                EC.visibility_of_element_located(locator=[By.CLASS_NAME, "__PrivateStripeElement"])
+            )
 
+            #Working with Stripe's iframes    
+            card_frame_element = self.driver.find_element(By.ID, "payment-element")
+            iframe_container = card_frame_element.find_element(By.CLASS_NAME, "__PrivateStripeElement")
+            iframe = iframe_container.find_element(By.TAG_NAME, "iframe")
+            self.driver.switch_to.frame(iframe)
 
-
-            card_number_input = self.driver.find_element(*self.INPUT_CARD_NUM)
+            #TODO: Getting the iframes work but this gives stale element exception   
+            # WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
+            #     EC.visibility_of_element_located(locator=[By.ID, "Field-numberInput"])
+            # )   
+            card_number_input = iframe.find_element(By.ID, "Field-numberInput")
             card_number_input.send_keys("4242424242424242")
 
             expiration_number_input = self.driver.find_element(By.ID, "Field-expiryInput")
             month = datetime.today().month
-            year = datetime.today().year + 1        
-            expiration_number_input.send_keys(month + year)
+            year = datetime.today().year + 1
+            expiration_number_input.send_keys(str(month) + str(year)[-2:])
 
             cvc_input = self.driver.find_element(By.ID, "Field-cvcInput")
             cvc_input.send_keys("123")
+            
+            #Switching Stripe's iframes
+            self.driver.switch_to.default_content()
+            address_frame_element = self.driver.find_element(By.ID, "billing-address")
+            iframe_container = address_frame_element.find_element(By.CLASS_NAME, "__PrivateStripeElement")
+            iframe = iframe_container.find_element(By.TAG_NAME, "iframe")
+            WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
+                EC.frame_to_be_available_and_switch_to_it(iframe)
+            )
+            self.driver.switch_to.frame(iframe)
 
             name_input = self.driver.find_element(By.ID, "Field-nameInput")
-            name_input.send_keys(User.__name__)
-
+            name_input.send_keys(user.name)
+            
             address_input = self.driver.find_element(By.CLASS_NAME, "Field-addressLine1Input")
+            self.driver.execute_script("arguments[0].scrollIntoView();", address_input)
             address_input.send_keys("some_address")
 
             postal_code_input = self.driver.find_element(By.ID, "Field-postalCodeInput")
@@ -243,6 +264,8 @@ class Account:
             provinces_select = self.driver.find_elements(By.TAG_NAME, "option")
             provinces_select[0].click()
 
+            #Back to main content
+            self.driver.switch_to.default_content()
 
             submit_btn = self.driver.find_element(By.ID, "btn-submit")
             submit_btn.click()
