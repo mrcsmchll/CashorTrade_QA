@@ -11,7 +11,7 @@ from pages.auth import Auth
 from pages.account import Account
 
 class TestLogin:
-    CALL_TIMEOUT = 60
+    CALL_TIMEOUT = 10
 
     @pytest.fixture(scope="function")
     def setup(self):
@@ -60,7 +60,7 @@ class TestLogin:
 
         acc_page.skip_walkthrough()
 
-        acc_page.sell_ticket(self.user)
+        acc_page.sell_ticket(self.user.name)
     
 
 

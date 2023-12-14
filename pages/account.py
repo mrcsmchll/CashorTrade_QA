@@ -2,7 +2,7 @@ from datetime import datetime
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import StaleElementReferenceException
 from utils.user import User
 
@@ -37,7 +37,7 @@ class Account:
     PERFORMERS_WRAPPER = (By.CLASS_NAME, "space-y-3 transform translate-y-0 hoist-undefined svelte-1xzbzxf")
     BTN_FRST_PERF = (By.ID, "performer-result-0")
 
-    CALL_TIMEOUT = 60
+    CALL_TIMEOUT = 10
 
     def __init__(self, driver):
         self.driver = driver
@@ -215,7 +215,7 @@ class Account:
                 EC.visibility_of_element_located(locator=[By.CLASS_NAME, "__PrivateStripeElement"])
             )
 
-            #Working with Stripe's iframes    
+            #Attempt at working with Stripe's iframes    
             card_frame_element = self.driver.find_element(By.ID, "payment-element")
             iframe_container = card_frame_element.find_element(By.CLASS_NAME, "__PrivateStripeElement")
             iframe = iframe_container.find_element(By.TAG_NAME, "iframe")
@@ -225,10 +225,9 @@ class Account:
             # WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
             #     EC.visibility_of_element_located(locator=[By.ID, "Field-numberInput"])
             # )   
-            card_number_input = iframe.find_element(By.ID, "Field-numberInput")
+            card_number_input = self.driver.find_element(By.ID, "Field-numberInput")
             card_number_input.send_keys("4242424242424242")
 
-            expiration_number_input = self.driver.find_element(By.ID, "Field-expiryInput")
             month = datetime.today().month
             year = datetime.today().year + 1
             expiration_number_input.send_keys(str(month) + str(year)[-2:])
