@@ -66,7 +66,8 @@ class TestLogin:
         acc_page.skip_walkthrough()
 
         acc_page.sell_ticket(self.user.name)
-    
+        
+            
 
 
     

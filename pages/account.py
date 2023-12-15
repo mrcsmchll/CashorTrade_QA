@@ -2,9 +2,8 @@ from datetime import datetime
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-from selenium.common.exceptions import StaleElementReferenceException
-from utils.user import User
+from selenium.webdriver.support.select import Select
+
 
 class Account:
     URL = "https://front-stage.cashortrade.org/auth/account"
@@ -74,56 +73,20 @@ class Account:
         )
         self.driver.find_element(*self.BTN_SKIP_WLK).click()
 
-    def sell_ticket(self, user):
+    def sell_ticket(self, name):
         self.driver.find_element(By.ID, self.BTN_SELL).click()
         WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
             EC.presence_of_element_located(self.BTN_FRST_PERF)
         )    
 
-        # performers = self.driver.find_elements(*self.PERFORMERS_WRAPPER)
-        # perfs_with_event = []
+      
         first_performer = self.driver.find_element(*self.BTN_FRST_PERF)
         first_performer.click()
         WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
             EC.visibility_of_element_located(self.BTN_EVENT)
         )
-        # for i, performer in enumerate(performers):
-        #     try:
-                
-        #         first_performer = self.driver.find_element(*self.BTN_FRST_PERF).click()
-        #         WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
-        #             EC.visibility_of_element_located(first_performer)
-        #         )
-                
-                
-
-        #         # Check if there is a nested element with ID "search-event-result-0"
-        #         try:
-                    
-        #             WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
-        #                 EC.visibility_of_element_located(self.BTN_EVENT)
-        #             )
-
-        #             nested_element = self.driver.find_element(*self.BTN_EVENT)
-
-        #             WebDriverWait(self.driver, self.CALL_TIMEOUT)
-                    
-        #             perfs_with_event.append(nested_element)
-        #             #go back
-        #             self.driver.find_element(By.CLASS_NAME, "flex items-center").click()
-        #         except NoSuchElementException:
-        #             pass  # No nested element found, continue with the next performer
-        #     except StaleElementReferenceException:
-        #         print(f"Element at index {i} became stale. Skipping.")
-        #     continue
-
-            
+       
         if first_performer is not None:        
-        #select the first performer found that has registered an event
-            # first_performer.click()
-            #  WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
-            #     EC.visibility_of_element_located(self.BTN_EVENT)
-            # )    
 
             event = self.driver.find_element(*self.BTN_EVENT)
             event.click()
@@ -133,9 +96,6 @@ class Account:
 
             sell_btn = self.driver.find_element(*self.BTN_EVENT_SELL)
             sell_btn.click()
-            # WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
-            #     EC.visibility_of_element_located(self.BTN_DIGITAL_TRANSF)
-            # )
 
             digital_transfer_btn = self.driver.find_element(*self.
             BTN_DIGITAL_TRANSF)
@@ -150,11 +110,9 @@ class Account:
 
             quantity_dropdown = self.driver.find_element(*self.DROPDOWN_QUANT)
             quantity_dropdown.click()
-            WebDriverWait(self.driver, self.CALL_TIMEOUT)
 
             quantity_amount_1 = self.driver.find_element(By.ID, "input-dropdown-option-0")
             quantity_amount_1.click()
-            WebDriverWait(self.driver, self.CALL_TIMEOUT)
 
             ready_btn = self.driver.find_element(By.ID, "btn-selector-ready")
             ready_btn.click()
@@ -168,7 +126,6 @@ class Account:
 
             og_purchase_1 = self.driver.find_element(By.ID, "input-dropdown-option-0")
             og_purchase_1.click()
-            WebDriverWait(self.driver, self.CALL_TIMEOUT)
 
             ticket_info = self.driver.find_element(By.ID, "btn-selector-general-admission")
             ticket_info.click()
@@ -178,11 +135,9 @@ class Account:
 
             ticket_loc_dropdown = self.driver.find_element(*self.DROPDOWN_LOC)
             ticket_loc_dropdown.click()
-            WebDriverWait(self.driver, self.CALL_TIMEOUT)
 
             ticket_loc_selection =  self.driver.find_element(By.ID, "input-dropdown-option-7")
             ticket_loc_selection.click()
-            WebDriverWait(self.driver, self.CALL_TIMEOUT)
 
             next_btn = self.driver.find_element(By.ID, "btn-create-listing-mediumSpecificInfo")
             next_btn.click()
@@ -256,49 +211,72 @@ class Account:
             address_frame_element = self.driver.find_element(By.ID, "billing-address")
             iframe_container = address_frame_element.find_element(By.CLASS_NAME, "__PrivateStripeElement")
             iframe = iframe_container.find_element(By.TAG_NAME, "iframe")
-            WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
-                EC.frame_to_be_available_and_switch_to_it(iframe)
-            )
+           
             self.driver.switch_to.frame(iframe)
 
-            name_input = self.driver.find_element(By.ID, "Field-nameInput")
-            name_input.send_keys(user.name)
+            is_stale = WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
+                EC.staleness_of(iframe)
+            )
             
-            address_input = self.driver.find_element(By.CLASS_NAME, "Field-addressLine1Input")
+            i = 0
+            while is_stale and i < 20:
+                is_stale = WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
+                    EC.staleness_of(iframe)
+                )
+                WebDriverWait(self.driver,self.CALL_TIMEOUT).until(
+                    EC.presence_of_element_located(locator=[By.XPATH, '//*[@id="Field-nameInput"]'])
+                )
+                
+                i += 1
+
+            name_input = self.driver.find_element(By.XPATH, '//*[@id="Field-nameInput"]')
+            name_input.send_keys(name)
+            
+            address_input = self.driver.find_element(By.XPATH,'//*[@id="Field-addressLine1Input"]')
             self.driver.execute_script("arguments[0].scrollIntoView();", address_input)
             address_input.send_keys("some_address")
 
-            postal_code_input = self.driver.find_element(By.ID, "Field-postalCodeInput")
+            WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
+                EC.element_to_be_clickable([By.XPATH, '//*[@id="Field-postalCodeInput"]'])
+            )
+            postal_code_input = self.driver.find_element(By.XPATH, '//*[@id="Field-postalCodeInput"]')
             postal_code_input.send_keys("1832")
 
-            city_input = self.driver.find_element(By.ID, "Field-localityInput")
+            city_input = self.driver.find_element(By.XPATH, '//*[@id="Field-localityInput"]')
             city_input.send_keys("lomas")
 
-            province_dropdown = self.driver.find_element(By.ID, "Field-administrativeAreaInput")
-            province_dropdown.click()
-            provinces_select = self.driver.find_elements(By.TAG_NAME, "option")
-            provinces_select[0].click()
+
+
+            province_dropdown = self.driver.find_element(By.XPATH, '//*[@id="Field-administrativeAreaInput"]')           
+            Select(province_dropdown).select_by_index(1)
 
             #Back to main content
             self.driver.switch_to.default_content()
-
-            submit_btn = self.driver.find_element(By.ID, "btn-submit")
+            submit_form = self.driver.find_element(By.XPATH, '//*[@id="payment-form"]')
+            submit_btn = submit_form.find_element(By.XPATH, '//*[@id="btn-submit"]')
+            WebDriverWait(self.driver,self.CALL_TIMEOUT).until(
+                EC.element_to_be_clickable([By.XPATH, '//*[@id="btn-submit"]'])
+            )
+            self.driver.execute_script("arguments[0].scrollIntoView();", submit_btn)
+            WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
+                EC.invisibility_of_element((By.XPATH, '//*[@id="ticket-wallet-wrapper"]/div/div[4]'))
+            )
             submit_btn.click()
             WebDriverWait(self.driver,self.CALL_TIMEOUT).until(
-                EC.visibility_of_element_located(self.BTN_NEXT_ADD_PAY)
+                EC.element_to_be_clickable(self.BTN_NEXT_ADD_PAY)
             )
 
             next_btn = self.driver.find_element(*self.BTN_NEXT_ADD_PAY)
             next_btn.click()
             WebDriverWait(self.driver,self.CALL_TIMEOUT).until(
-                EC.visibility_of_element_located(self.BTN_NEXT_CREATE_LIST)
+                EC.element_to_be_clickable(self.BTN_NEXT_CREATE_LIST)
             )
 
             next_btn = self.driver.find_element(*self.BTN_NEXT_CREATE_LIST)
             next_btn.click()
 
             WebDriverWait(self.driver,self.CALL_TIMEOUT).until(
-                EC.visibility_of_element_located(self.BTN_POST)
+                EC.element_to_be_clickable(self.BTN_POST)
             )
             post_btn = self.driver.find_element(*self.BTN_POST)
             post_btn.click()
