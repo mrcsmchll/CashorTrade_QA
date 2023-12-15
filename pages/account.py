@@ -218,18 +218,34 @@ class Account:
             #Attempt at working with Stripe's iframes    
             card_frame_element = self.driver.find_element(By.ID, "payment-element")
             iframe_container = card_frame_element.find_element(By.CLASS_NAME, "__PrivateStripeElement")
-            iframe = iframe_container.find_element(By.TAG_NAME, "iframe")
+            iframe = iframe_container.find_element(By.XPATH, '//*[@id="payment-element"]/div/iframe')
             self.driver.switch_to.frame(iframe)
-
-            #TODO: Getting the iframes work but this gives stale element exception   
-            # WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
-            #     EC.visibility_of_element_located(locator=[By.ID, "Field-numberInput"])
-            # )   
-            card_number_input = self.driver.find_element(By.ID, "Field-numberInput")
+            
+            is_stale = WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
+                EC.staleness_of(iframe)
+            )
+            
+            i = 0
+            while is_stale and i < 20:
+                is_stale = WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
+                    EC.staleness_of(iframe)
+                )
+                WebDriverWait(self.driver,self.CALL_TIMEOUT).until(
+                    EC.presence_of_element_located(locator=[By.XPATH, "//*[@id='Field-numberInput']"])
+                )
+                
+                i += 1
+                        
+                
+           
+            
+            card_number_input = self.driver.find_element(By.XPATH, "//*[@id='Field-numberInput']")          
             card_number_input.send_keys("4242424242424242")
+            
 
             month = datetime.today().month
             year = datetime.today().year + 1
+            expiration_number_input = self.driver.find_element(By.ID,"Field-expiryInput")
             expiration_number_input.send_keys(str(month) + str(year)[-2:])
 
             cvc_input = self.driver.find_element(By.ID, "Field-cvcInput")

@@ -1,5 +1,6 @@
 import pytest
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from config.db import Database
@@ -22,8 +23,12 @@ class TestLogin:
         db = Database()
         db.insert_user(self.user.name, self.user.mail, self.user.phone)
 
+        #As of Chrome 95, on MacOS and Windows, "--disable-site-isolation-trials" remains a required flag in order to disable web security
+        options = Options()
+        options.add_argument("--disable-site-isolation-trials")
+        options.add_argument("--disable-web-security")
 
-        driver = webdriver.Chrome()
+        driver = webdriver.Chrome(options)
         driver.get(Home.URL)
         yield driver
         driver.quit()
