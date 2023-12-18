@@ -1,9 +1,8 @@
-from datetime import datetime
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.select import Select
-
+from config.card_info import Card
 
 class Account:
     URL = "https://front-stage.cashortrade.org/auth/account"
@@ -213,18 +212,15 @@ class Account:
                         
                 
            
-            
+            card = Card()
             card_number_input = self.driver.find_element(*self.INPUT_CARD_NUM)          
-            card_number_input.send_keys("4242424242424242")
+            card_number_input.send_keys(card.number)
             
-
-            month = datetime.today().month
-            year = datetime.today().year + 1
             expiration_number_input = self.driver.find_element(*self.INPUT_EXPIRATION_CARD)
-            expiration_number_input.send_keys(str(month) + str(year)[-2:])
+            expiration_number_input.send_keys(card.exp_date)
 
             cvc_input = self.driver.find_element(*self.INPUT_CVC)
-            cvc_input.send_keys("123")
+            cvc_input.send_keys(card.cvc)
             
             #Switching Stripe's iframes
             self.driver.switch_to.default_content()
@@ -254,16 +250,16 @@ class Account:
             
             address_input = self.driver.find_element(*self.INPUT_ADDRESS)
             self.driver.execute_script("arguments[0].scrollIntoView();", address_input)
-            address_input.send_keys("some_address")
+            address_input.send_keys(card.address)
 
             WebDriverWait(self.driver, self.CALL_TIMEOUT).until(
                 EC.element_to_be_clickable(self.INPUT_POSTAL_CODE)
             )
             postal_code_input = self.driver.find_element(*self.INPUT_POSTAL_CODE)
-            postal_code_input.send_keys("1832")
+            postal_code_input.send_keys(card.postal)
 
             city_input = self.driver.find_element(*self.INPUT_LOCALITY)
-            city_input.send_keys("lomas")
+            city_input.send_keys(card.city)
 
 
 
